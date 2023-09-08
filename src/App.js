@@ -1,23 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import BeerList from "./components/BeerList";
+import SearchBar from "./components/SearchBar";
+import "./App.css";
 
 function App() {
+  const [beers, setBeers] = useState([]);
+  const [filteredBeers, setFilteredBeers] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("https://api.punkapi.com/v2/beers")
+      .then((response) => {
+        setBeers(response.data);
+        setFilteredBeers(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
+  const handleSearch = (searchTerm) => {
+    const filtered = beers.filter((beer) =>
+      beer.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredBeers(filtered);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Beer Explorer</h1>
+      <SearchBar onSearch={handleSearch} />
+      <BeerList beers={filteredBeers} />
     </div>
   );
 }
